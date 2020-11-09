@@ -2,7 +2,7 @@ image: alpine:latest
 
 stages:
   - build
-
+  - test
 
 build:
   stage: build
@@ -14,5 +14,19 @@ build:
   script:
     - setup_docker
     - build
+  only:
+    - branches
+
+.test:
+  services:
+    - postgres:latest
+  variables:
+    POSTGRES_DB: test
+  stage: test
+  image: gliderlabs/herokuish:latest
+  script:
+    - setup_test_db
+    - cp -R . /tmp/app
+    - /bin/herokuish buildpack test
   only:
     - branches
